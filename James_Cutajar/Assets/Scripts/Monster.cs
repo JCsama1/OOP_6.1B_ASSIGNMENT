@@ -6,17 +6,23 @@ using UnityEngine;
 public class Monster : MonoBehaviour
 {
     [SerializeField] Sprite deadSprite;
+    [SerializeField] ParticleSystem particleSystem;
+    bool hasDied;
 
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (ShouldDieFromCollision(collision))
         {
-            Die();
+            StartCoroutine(Die());
         }
     }
 
     bool ShouldDieFromCollision(Collision2D collision)
     {
+
+        if (hasDied)
+            return false;
+
         Bird bird = collision.gameObject.GetComponent<Bird>();
         if (bird != null)
             return true;
@@ -27,9 +33,12 @@ public class Monster : MonoBehaviour
         return false;
     }
 
-    void Die()
+    IEnumerator Die()
     {
+       hasDied = true;
        GetComponent<SpriteRenderer>().sprite = deadSprite;
-       //gameObject.SetActive(false);
+       particleSystem.Play();
+       yield return new WaitForSeconds(1);
+       gameObject.SetActive(false);
     }
 }
